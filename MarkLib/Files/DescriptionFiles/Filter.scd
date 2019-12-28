@@ -1,0 +1,1 @@
+[ [ 'lpc', "glitchy distortion" ], [ 'dec', "raw distortion" ], [ 'wnl', "nonlinear distortion" ], [ 'cod', "very overdriven distortion" ], [ 'log', "logistic map noise generator" ], [ 'lpc2', "glitchy distortion with mix function added" ], [ 'dec2', "raw distortion with mix function added" ], [ 'grain1', "granulator with regular impulses" ] ]
