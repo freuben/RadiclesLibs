@@ -1,1 +1,1 @@
-[ [ 'pch_testfilter2', "simple pitch shift with rm" ], [ 'pch_testfilter3', "a pitch shiter for testing" ], [ 'pch_testfilter4', "a pitch shiter for testing" ] ]
+[  ]
