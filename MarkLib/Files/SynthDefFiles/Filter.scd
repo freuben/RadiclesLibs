@@ -18,7 +18,16 @@
 } ], [ 'dec2', {arg mix=0 -> [0,1], rate=44100 -> [10, 44100, \exp, {|val|val.round}], bits=24 -> [0, 31, {|val|val.round}];
 	var sig = Decimator.ar(\in, rate, bits);
 	((sig*mix.linlin(0, 1, 0, 1)) + (\in*mix.linlin(0, 1, 1, 0)))
-} ], [ 'grain1', {arg impulse=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
-	var trigger = Impulse.kr(impulse);
+} ], [ 'grain1', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
+	var trigger = Impulse.kr(freq);
 	GrainIn.ar(1, trigger, dur, \in);
+} ], [ 'grain2', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
+	var trigger = Dust.kr(freq);
+	GrainIn.ar(1, trigger, dur, \in);
+} ], [ 'grain1_stereo', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
+	var trigger = Impulse.kr(freq);
+	GrainIn.ar(2, trigger, dur, \in);
+} ], [ 'grain2_stereo', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
+	var trigger = Dust.kr(freq);
+	GrainIn.ar(2, trigger, dur, \in);
 } ] ]
