@@ -2,4 +2,6 @@
  -> [ 0.01, 2.01, \exp, {|val| (val-0.01)} ], winSize=0.02
  -> [ 0.01, 3 ];
 		PitchShift.ar(\in, winSize, pitchRatio, pitchDispertion, timeDispersion)*Saw.ar;
+} ], [ 'myfx', {arg volume= 0 -> [-20, 20];
+	\in * volume.dbamp;
 } ] ]

@@ -25,7 +25,8 @@
 	var trigger = Dust.kr(freq);
 	GrainIn.ar(1, trigger, dur, \in);
 } ], [ 'grain1_stereo', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
-	var trigger = Impulse.kr(freq);
+	var trigger;
+	trigger = Impulse.kr(freq);
 	GrainIn.ar(2, trigger, dur, \in);
 } ], [ 'grain2_stereo', {arg freq=10 -> [0.1, 50, {|val|val.round(0.1)}], dur=0.1 -> [0.0001, 0.1, {|val|val.round(0.0001)}];
 	var trigger = Dust.kr(freq);

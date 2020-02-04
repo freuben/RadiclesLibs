@@ -1,1 +1,1 @@
-[ [ 'pch_test1', "simple pitch shift" ] ]
+[ [ 'pch_test1', "simple pitch shift" ], [ 'myfx', "my very first Radicles effect" ] ]

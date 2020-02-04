@@ -2,4 +2,6 @@
  , winSize=0.02
  ;
 		PitchShift.ar(\in, winSize, pitchRatio, pitchDispertion, timeDispersion)*Saw.ar;
+} ], [ 'myfx', {arg volume= 0 ;
+	\in * volume.dbamp;
 } ] ]

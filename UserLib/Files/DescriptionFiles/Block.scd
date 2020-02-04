@@ -1,1 +1,1 @@
-[  ]
+[ [ 'myblock', "my very first Radicles block" ] ]
