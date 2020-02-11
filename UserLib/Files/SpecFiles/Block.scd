@@ -1,1 +1,1 @@
-[ [ 'myblock', [ [ 'freq', [ 20, 20000, 'exp' ] ] ] ] ]
+[ [ 'myblock', [ [ 'freq', [ 20, 20000, 'exp' ] ] ] ], [ 'blocknew', [ [ 'freq', [ 20, 20000, 'exp' ] ] ] ], [ 'blocknew2', [ [ 'freq', [ 20, 20000, 'exp' ] ], [ 'trig', [ 0, 1 ], {|val| val.round(1)} ] ] ] ]

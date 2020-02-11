@@ -1,1 +1,1 @@
-[ [ 'myblock', "my very first Radicles block" ] ]
+[ [ 'myblock', "my very first Radicles block" ], [ 'blocknew', "this is a new block" ], [ 'blocknew2', "this is a new block with and envelope" ] ]
