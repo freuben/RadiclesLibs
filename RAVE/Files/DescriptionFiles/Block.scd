@@ -1,0 +1,1 @@
+[ [ 'nntd', "NN direct with SoundIn - RAVE timbre transfer" ], [ 'nnts', "NN with SoundIn (stereo) - RAVE timbre transfer" ], [ 'nntds', "NN direct with SoundIn (stereo) - RAVE timbre transfer" ], [ 'nnt', "NN with SoundIn - RAVE timbre transfer" ] ]
