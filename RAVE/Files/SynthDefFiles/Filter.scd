@@ -1351,4 +1351,129 @@ decoderMix = [decoderL, decoderR] * gainDel.dbamp + dryDel;
 decoderMix = decoderMix * amp * (postVol.dbamp.lag(0.01));
 decoderMix = Select.ar(whichMix, [decoderMix, input]);
 
+} ], [ 'nntImprov64', {arg lowCut=20 ->[20,20000, \exp],
+	hiCut=20000 ->[20,20000, \exp], preVol= 0 ->[ 0, 24, \db, 0, -inf,  "dB" ],
+	cpthresh= -20 ->[ -60, 0, \db, 0, -inf,  "dB" ], ratio=1 ->[1,6],
+	cpatk=0.01 ->[0.001,0.1], cprel=0.01 -> [0.001,0.1], transp=0 ->[-24,24,{|val| val.round(0.5)}],
+	disper=0 ->[0,0.1], postVol= 0 ->[ -24, 24], amp= 1->[0.1,2], pan= 0 ->[-1,1],
+	which1=0 ->[0,3, {|val| val.round(1)}], which2=0 ->[0,3,{|val| val.round(1)}],
+	which3=0 ->[0,3,{|val| val.round(1)}], which4=0 ->[0,3,{|val| val.round(1)}],
+	which5=0 ->[0,3, {|val| val.round(1)}], which6=0 ->[0,3,{|val| val.round(1)}],
+	which7=0 ->[0,3,{|val| val.round(1)}], which8=0 ->[0,3,{|val| val.round(1)}],
+	dryDim = 1 -> [0,1], wetDim = 0 -> [0,1],
+	mulSpace= 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ], addSpace= 0 -> [-6,6],
+	mul1 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul2 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul3 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul4 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul5 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul6 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul7 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	mul8 = 0 -> [ -60, 9, \db, 0.1, -inf,  "dB" ],
+	add1= 0 -> [-6,6], add2= 0 -> [-6,6], add3= 0 -> [-6,6], add4= 0 -> [-6,6],
+	add5= 0 -> [-6,6], add6= 0 -> [-6,6], add7= 0 -> [-6,6], add8= 0 -> [-6,6],
+		modWhich1 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich2 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich3 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich4 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich5 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich6 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich7 = 0 -> [0,4,{|val| val.round(1)}],
+	modWhich8 = 0 -> [0,4,{|val| val.round(1)}],
+	modFreq1 = 23 -> [0.01,85], modFreq2 = 23 -> [0.01,85],
+	modFreq3 = 23 -> [0.01,85], modFreq4 = 23 -> [0.01,85],
+	modFreq5 = 23 -> [0.01,85], modFreq6 = 23 -> [0.01,85],
+	modFreq7 = 23 -> [0.01,85], modFreq8 = 23 -> [0.01,85],
+	min1 = -3 -> [-6,6], min2 = -3 -> [-6,6], min3 = -3 -> [-6,6],
+	min4 = -3 -> [-6,6], min5 = -3 -> [-6,6], min6 = -3 -> [-6,6],
+	min7 = -3 -> [-6,6], min8 = -3 -> [-6,6],
+	max1 = 3 -> [-6,6], max2 = 3 -> [-6,6], max3 = 3 -> [-6,6],
+	max4 = 3 -> [-6,6], max5 = 3 -> [-6,6], max6 = 3 -> [-6,6],
+	max7 = 3 -> [-6,6], max8 = 3 -> [-6,6],
+	whichMix = 0 -> [0,1, {|val| val.round(1)}],
+	gainDel=0 -> [ -inf, 0, \db, 0, -inf,  "dB" ],
+	dryDelGain = -inf -> [ -inf, 6, \db, 0, -inf,  "dB" ],
+	dryDelay = 0.683 -> [0,1.5];
+	var input, sig, encoder, sigDim, dimSize, key, fxchain, modDim,
+	postEncode, postModDim, postSum, decoder, mulArr, dryDel, decoderMix, blockSize;
+
+	key = ("muslat" ++ Radicles.modelNum).asSymbol;
+	blockSize = 8192;
+	NN(key).methods.do{|item| if(item.name == \encode, {dimSize = item.numOutputs}) };
+	input = Mix(\in);
+	//fx chain
+	fxchain = input * (preVol.dbamp.lag(0.01));
+	fxchain = LPF.ar(fxchain, hiCut);
+	fxchain = HPF.ar(fxchain, lowCut);
+	fxchain = Compander.ar(fxchain, fxchain,
+        thresh: cpthresh.dbamp,
+        slopeBelow: 1,
+        slopeAbove: 1/ratio,
+        clampTime:  cpatk,
+        relaxTime:  cprel
+    );
+	fxchain = PitchShift.ar(fxchain, 0.2, transp.midiratio,disper);
+	//fx chain
+
+	mul1 = mul1.dbamp + add1;
+	mul2 = mul2.dbamp + add2;
+	mul3 = mul3.dbamp + add3;
+	mul4 = mul4.dbamp + add4;
+	mul5 = mul5.dbamp + add5;
+	mul6 = mul6.dbamp + add6;
+	mul7 = mul7.dbamp + add7;
+	mul8 = mul8.dbamp + add8;
+
+	mulArr = [mul1, mul2, mul3, mul4, mul5, mul6, mul7, mul8];
+
+	modDim = [
+		Select.ar(modWhich1, [LFNoise1.ar(modFreq1), SinOsc.ar(modFreq1), LFTri.ar(modFreq1), LFSaw.ar(modFreq1), LFPulse.ar(modFreq1)]).range(min1, max1),
+	Select.ar(modWhich2, [LFNoise1.ar(modFreq2), SinOsc.ar(modFreq2), LFTri.ar(modFreq2), LFSaw.ar(modFreq2), LFPulse.ar(modFreq2)]).range(min2, max2),
+	Select.ar(modWhich3, [LFNoise1.ar(modFreq3), SinOsc.ar(modFreq3), LFTri.ar(modFreq3), LFSaw.ar(modFreq3), LFPulse.ar(modFreq3) ]).range(min3, max3),
+	Select.ar(modWhich4, [LFNoise1.ar(modFreq4), SinOsc.ar(modFreq4), LFTri.ar(modFreq4), LFSaw.ar(modFreq4), LFPulse.ar(modFreq4) ]).range(min4, max4),
+	Select.ar(modWhich5, [LFNoise1.ar(modFreq5), SinOsc.ar(modFreq5), LFTri.ar(modFreq5), LFSaw.ar(modFreq5), LFPulse.ar(modFreq5) ]).range(min5, max5),
+	Select.ar(modWhich6, [LFNoise1.ar(modFreq6), SinOsc.ar(modFreq6), LFTri.ar(modFreq6), LFSaw.ar(modFreq6), LFPulse.ar(modFreq6) ]).range(min6, max6),
+	Select.ar(modWhich7, [LFNoise1.ar(modFreq7), SinOsc.ar(modFreq7), LFTri.ar(modFreq7), LFSaw.ar(modFreq7), LFPulse.ar(modFreq7) ]).range(min7, max7),
+	Select.ar(modWhich8, [LFNoise1.ar(modFreq8), SinOsc.ar(modFreq8), LFTri.ar(modFreq8), LFSaw.ar(modFreq8), LFPulse.ar(modFreq8) ]).range(min8, max8),
+	];
+
+	encoder = NN(key, \encode).ar(fxchain, blockSize);
+	/*encoder = encoder * mulSpace.dbamp + addSpace;*/
+
+	postEncode = encoder * dryDim;
+	postModDim = modDim * wetDim;
+	postSum = postEncode + postModDim;
+
+	sigDim = [
+		Select.ar(which1, [encoder[0], postSum[0], \sig1.ar(0,0.1), modDim[0]]),
+		Select.ar(which2, [encoder[1], postSum[1], \sig2.ar(0,0.1), modDim[1]]),
+		Select.ar(which3, [encoder[2], postSum[2], \sig3.ar(0,0.1), modDim[2]]),
+		Select.ar(which4, [encoder[3], postSum[3], \sig4.ar(0,0.1), modDim[3]]),
+		Select.ar(which5, [encoder[4], postSum[4], \sig5.ar(0,0.1), modDim[4]]),
+		Select.ar(which6, [encoder[5], postSum[5], \sig6.ar(0,0.1), modDim[5]]),
+		Select.ar(which7, [encoder[6], postSum[6], \sig7.ar(0,0.1), modDim[6]]),
+		Select.ar(which8, [encoder[7], postSum[7], \sig8.ar(0,0.1), modDim[7]])
+	];
+	if(dimSize > 8, {
+		sigDim = sigDim*mulArr;
+		sig = sigDim ++ encoder.copyRange(8, dimSize-1);
+	}, {
+		if(dimSize < 8, {
+			sigDim = sigDim*mulArr;
+			sig = sigDim.copyRange(0, dimSize-1);
+		}, {
+			sig = sigDim;
+		});
+	});
+
+	sig = sig * mulSpace.dbamp + addSpace;
+	decoder = NN(key, \decode).ar(sig, blockSize);
+
+	dryDel = DelayL.ar(input * dryDelGain.dbamp, 1, dryDelay);
+
+	decoderMix = decoder * gainDel.dbamp + dryDel ;
+	decoderMix = decoderMix * amp * (postVol.dbamp.lag(0.01));
+	decoderMix = Select.ar(whichMix, [decoderMix, input]);
+
+	Pan2.ar(decoderMix, pan);
 } ] ]
